@@ -37,20 +37,20 @@ resources:
     product_version: {{product_version_regex}}
     sort_by: semver
 
-#- name: schedule
-#  type: time
-#  source:
-#    interval: 30m
-#    start: "12:00 AM"
-#    stop: "11:59 PM"
-#    location: America/Los_Angeles
-#    days: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
+- name: schedule
+  type: time
+  source:
+    interval: 30m
+    start: "12:00 AM"
+    stop: "11:59 PM"
+    location: America/Los_Angeles
+    days: [Sunday, Monday, Tuesday, Wednesday, Thursday, Friday, Saturday]
 
 jobs:
 - name: regulator
   plan:
-#  - get: schedule
-#    trigger: true
+  - get: schedule
+    trigger: true
   - get: tile
     params: { globs: [] }
 
