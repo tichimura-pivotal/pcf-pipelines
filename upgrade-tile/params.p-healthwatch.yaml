@@ -114,8 +114,8 @@ product_globs: "*pivotal"
 # is https://network.pivotal.io/products/pivotal-rabbitmq-service, and the
 # product slug is 'pivotal-rabbitmq-service'.
 #product_slug: 
-product_slug: apm
+product_slug: p-healthwatch
 
 # The minor product version to track, as a regexp. To track 1.11.x of a product, this would be "^1\.11\..*$", as shown below.
 #product_version_regex: ^1\.11\..*$
-product_version_regex: ^1\.4\..*$
+product_version_regex: ^1\.1\..*$
