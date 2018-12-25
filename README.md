@@ -1,13 +1,34 @@
-# PCF Pipelines
+### Planned Deprecation
+Please note that this repository will be officially deprecated soon.
 
-**Please use the [Pivotal Network release](https://network.pivotal.io/products/pcf-automation/) of `pcf-pipelines` for stability. Using this repo directly may result in breaking the pipelines that consume it. Tracking master is considered unstable.**
+### Description
 
-This is a collection of [Concourse](https://concourse.ci) pipelines for
+This is a collection of [Concourse](https://concourse-ci.org) pipelines for
 installing and upgrading [Pivotal Cloud Foundry](https://pivotal.io/platform).
 
 Other pipelines which may be of interest are listed at the end of this README.
 
 ![Concourse Pipeline](install-pcf/gcp/embed.png)
+
+
+### Downloading PCF Pipelines
+
+**Please use the [Pivotal Network release](https://network.pivotal.io/products/pcf-automation/) of `pcf-pipelines` for stability.  This link will result in 404 if you do not have access, to get access contact your Pivotal Support/Sales team.  Tracking master is considered unstable, and is likely to result in breaking the pipelines that consume it.**
+
+If you do not have access to the Pivotal Network release, and you are using the GitHub release, for stability, please ensure you are tagging the pipeline.yml:
+
+```yaml
+ resources:
+  - name: pcf-pipelines
+  type: git
+  source:
+    uri: https://github.com/pivotal-cf/pcf-pipelines
+    branch: master
+    username: ((github_username))
+    password: ((github_token))
+    tag_filter: v0.23.0
+```
+
 
 ### Install-PCF pipelines
 Deploys PCF for whichever IaaS you choose. For public cloud installs, such as AWS, Azure, and GCP, the pipeline will deploy the necessary infrastructure in the public cloud, such as the networks, loadbalancers, and databases, and use these resources to then deploy PCF (Ops Manager and Elastic Runtime). On-premise private datacenter install pipelines, such as with vSphere and Openstack, do not provision any infrastructure resources and only deploy PCF, using resources that are specified in the parameters of the pipeline.
@@ -17,14 +38,54 @@ The desired output of these install pipelines is a PCF deployment that matches t
 These pipelines are found in the `install-pcf` directory, sorted by IaaS.
 
 
-**Compatibility Matrix**
+**Compatibility Matrix** 
 
 | IAAS | pipelines release | OM version | ERT version |
 | :--- | --- | --- | --- |
-| vSphere | v23 | 2.0.x  | 2.0.x  |
-| Azure | v23 | 2.0.x | 2.0.x |
-| AWS | v23 | 2.0.x | 2.0.x |
-| GCP | v23 | 2.0.x  | 2.0.x  |
+| vSphere | v23.12 | 2.4.x  | 2.4.x  |
+| Azure | v23.12 | 2.4.x | 2.4.x |
+| AWS | v23.12 | 2.4.x | 2.4.x |
+| GCP | v23.12 | 2.4.x  | 2.4.x  |
+| OpenStack | v23 | 2.0.x  | 2.0.x  |
+
+| IAAS | pipelines release | OM version | ERT version |
+| :--- | --- | --- | --- |
+| vSphere | v23.11 | 2.3.x  | 2.3.x  |
+| Azure | v23.11 | 2.3.x | 2.3.x |
+| AWS | v23.11 | 2.3.x | 2.3.x |
+| GCP | v23.11 | 2.3.x  | 2.3.x  |
+| OpenStack | v23 | 2.0.x  | 2.0.x  |
+
+| IAAS | pipelines release | OM version | ERT version |
+| :--- | --- | --- | --- |
+| vSphere | v23.8 | 2.3.x  | 2.3.x  |
+| Azure | v23.8 | 2.3.x | 2.3.x |
+| AWS | v23.8 | 2.3.x | 2.3.x |
+| GCP | v23.8 | 2.3.x  | 2.3.x  |
+| OpenStack | v23 | 2.0.x  | 2.0.x  |
+
+| IAAS | pipelines release | OM version | ERT version |
+| :--- | --- | --- | --- |
+| vSphere | v23.6 | 2.2.x  | 2.2.x  |
+| Azure | v23.6 | 2.2.x | 2.2.x |
+| AWS | v23.6 | 2.2.x | 2.2.x |
+| GCP | v23.6 | 2.2.x  | 2.2.x  |
+| OpenStack | v23 | 2.0.x  | 2.0.x  |
+
+| IAAS | pipelines release | OM version | ERT version |
+| :--- | --- | --- | --- |
+| vSphere | v23.3 | 2.1.x  | 2.1.x  |
+| Azure | v23.3 | 2.1.x | 2.1.x |
+| AWS | v23.3 | 2.1.x | 2.1.x |
+| GCP | v23.3 | 2.1.x  | 2.1.x  |
+| OpenStack | v23 | 2.0.x  | 2.0.x  |
+
+| IAAS | pipelines release | OM version | ERT version |
+| :--- | --- | --- | --- |
+| vSphere | v23.1 | 2.0.x  | 2.0.x  |
+| Azure | v23.1 | 2.0.x | 2.0.x |
+| AWS | v23.1 | 2.0.x | 2.0.x |
+| GCP | v23.1 | 2.0.x  | 2.0.x  |
 | OpenStack | v23 | 2.0.x  | 2.0.x  |
 
 | IAAS | pipelines release | OM version | ERT version |
@@ -56,8 +117,8 @@ The upgrade-tile pipeline is compatible with the latest version of pcf-pipelines
 
 ## Prerequisites
 
-- [install a Concourse server](https://concourse.ci/installing.html)
-- download the [Fly CLI](https://concourse.ci/fly-cli.html) to interact with the Concourse server
+- [install a Concourse server](https://concourse-ci.org/install.html)
+- download the [Fly CLI](https://concourse-ci.org/fly.html) to interact with the Concourse server
 - depending on where you've installed Concourse, you may need to set up
 [additional firewall rules](FIREWALL.md "Firewall") to allow Concourse to reach
 third-party sources of pipeline dependencies
@@ -182,14 +243,14 @@ The pipelines and tasks in this repo follow a simple pattern which must be adher
 
 Each pipeline has a `pipeline.yml`, which contains the YAML for a single
 Concourse pipeline. Pipelines typically require parameters, either for resource
-names or for credentials, which are supplied externally via `{{placeholders}}`.
+names or for credentials, which are supplied externally via `((placeholders))`.
 
 A pipeline may have a `params.yml` file which is a template for the parameters
 that the pipeline requires. This template should have placeholder values,
 typically CHANGEME, or defaults where appropriate. This file should be filled
 out and stored elsewhere, such as in LastPass, and then supplied to `fly` via
 the `-l` flag. See the
-[fly documentation](http://concourse.ci/fly-set-pipeline.html) for more.
+[fly documentation](http://concourse-ci.org/fly-set-pipeline.html) for more.
 
 #### Pipelines
 

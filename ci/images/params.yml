@@ -1,5 +1,8 @@
-git_private_key:
-czero_dockerhub_password:
-github_token:
 aws_access_key_id:
 aws_secret_access_key:
+git_private_key:
+github_token:
+dockerhub_username:
+dockerhub_password:
+version_bucket_region:
+version_bucket_name:

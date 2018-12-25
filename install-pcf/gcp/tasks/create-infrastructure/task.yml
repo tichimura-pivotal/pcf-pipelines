@@ -4,7 +4,7 @@ platform: linux
 image_resource:
   type: docker-image
   source:
-    repository: czero/rootfs
+    repository: pcfnorm/rootfs
 
 inputs:
 - name: pcf-pipelines 
@@ -53,6 +53,9 @@ params:
   DB_LOCKET_PASSWORD:
   DB_SILK_USERNAME:
   DB_SILK_PASSWORD:
+  DB_CREDHUB_USERNAME:
+  DB_CREDHUB_PASSWORD:
+  DB_CLOUDSQLDB_TIER:
 
 run:
   path: pcf-pipelines/install-pcf/gcp/tasks/create-infrastructure/task.sh

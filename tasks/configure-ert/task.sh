@@ -147,11 +147,10 @@ cf_resources=$(
     --argjson internet_connected $INTERNET_CONNECTED \
     '
     {
-      "backup-prepare": {"internet_connected": $internet_connected},
+      "backup_restore": {"internet_connected": $internet_connected},
       "clock_global": {"internet_connected": $internet_connected},
       "cloud_controller": {"internet_connected": $internet_connected},
       "cloud_controller_worker": {"internet_connected": $internet_connected},
-      "consul_server": {"internet_connected": $internet_connected},
       "credhub": {"internet_connected": $internet_connected},
       "diego_brain": {"internet_connected": $internet_connected},
       "diego_cell": {"internet_connected": $internet_connected},
@@ -198,6 +197,7 @@ cf_properties=$(
     --arg haproxy_backend_ca "$HAPROXY_BACKEND_CA" \
     --arg router_tls_ciphers "$ROUTER_TLS_CIPHERS" \
     --arg haproxy_tls_ciphers "$HAPROXY_TLS_CIPHERS" \
+    --arg frontend_idle_timeout "$FRONTEND_IDLE_TIMEOUT" \
     --arg routing_disable_http "$routing_disable_http" \
     --arg routing_custom_ca_certificates "$ROUTING_CUSTOM_CA_CERTIFICATES" \
     --arg routing_tls_termination $ROUTING_TLS_TERMINATION \
@@ -224,6 +224,8 @@ cf_properties=$(
     --arg db_routing_password "$db_routing_password" \
     --arg db_uaa_username "$db_uaa_username" \
     --arg db_uaa_password "$db_uaa_password" \
+    --arg db_credhub_username "$db_credhub_username" \
+    --arg db_credhub_password "$db_credhub_password" \
     --arg db_ccdb_username "$db_ccdb_username" \
     --arg db_ccdb_password "$db_ccdb_password" \
     --arg db_accountdb_username "$db_accountdb_username" \
@@ -238,19 +240,6 @@ cf_properties=$(
     --arg aws_region "${aws_region:-''}" \
     --arg gcp_storage_access_key "${gcp_storage_access_key:-''}" \
     --arg gcp_storage_secret_key "${gcp_storage_secret_key:-''}" \
-    --arg mysql_backups "$MYSQL_BACKUPS" \
-    --arg mysql_backups_scp_server "$MYSQL_BACKUPS_SCP_SERVER" \
-    --arg mysql_backups_scp_port "$MYSQL_BACKUPS_SCP_PORT" \
-    --arg mysql_backups_scp_user "$MYSQL_BACKUPS_SCP_USER" \
-    --arg mysql_backups_scp_key "$MYSQL_BACKUPS_SCP_KEY" \
-    --arg mysql_backups_scp_destination "$MYSQL_BACKUPS_SCP_DESTINATION" \
-    --arg mysql_backups_scp_cron_schedule "$MYSQL_BACKUPS_SCP_CRON_SCHEDULE" \
-    --arg mysql_backups_s3_endpoint_url "$MYSQL_BACKUPS_S3_ENDPOINT_URL" \
-    --arg mysql_backups_s3_bucket_name "$MYSQL_BACKUPS_S3_BUCKET_NAME" \
-    --arg mysql_backups_s3_bucket_path "$MYSQL_BACKUPS_S3_BUCKET_PATH" \
-    --arg mysql_backups_s3_access_key_id "$MYSQL_BACKUPS_S3_ACCESS_KEY_ID" \
-    --arg mysql_backups_s3_secret_access_key "$MYSQL_BACKUPS_S3_SECRET_ACCESS_KEY" \
-    --arg mysql_backups_s3_cron_schedule "$MYSQL_BACKUPS_S3_CRON_SCHEDULE" \
     --argjson credhub_encryption_keys "$credhub_encryption_keys_json" \
     --argjson networking_poe_ssl_certs "$networking_poe_ssl_certs_json" \
     --arg container_networking_nw_cidr "$CONTAINER_NETWORKING_NW_CIDR" \
@@ -262,49 +251,54 @@ cf_properties=$(
           "private_key_pem": $saml_key_pem
         }
       },
-      ".properties.tcp_routing": { "value": "disable" },
-      ".properties.route_services": { "value": "enable" },
+      ".cloud_controller.allow_app_ssh_access": { "value": true },
+      ".cloud_controller.apps_domain": { "value": $apps_domain },
+      ".cloud_controller.security_event_logging_enabled": { "value": true },
+      ".cloud_controller.system_domain": { "value": $system_domain },
       ".ha_proxy.skip_cert_verify": { "value": true },
+      ".mysql_monitor.recipient_email": { "value" : $mysql_monitor_recipient_email },
       ".properties.container_networking_interface_plugin.silk.network_cidr": { "value": $container_networking_nw_cidr },
+      ".properties.push_apps_manager_company_name": { "value": "pcf-\($iaas)" },
+      ".properties.route_services": { "value": "enable" },
       ".properties.route_services.enable.ignore_ssl_cert_verification": { "value": true },
       ".properties.security_acknowledgement": { "value": $security_acknowledgement },
       ".properties.system_database": { "value": "external" },
-      ".properties.system_database.external.port": { "value": "3306" },
-      ".properties.system_database.external.host": { "value": $db_host },
-      ".properties.system_database.external.app_usage_service_username": { "value": $db_app_usage_service_username },
-      ".properties.system_database.external.app_usage_service_password": { "value": { "secret": $db_app_usage_service_password } },
-      ".properties.system_database.external.autoscale_username": { "value": $db_autoscale_username },
-      ".properties.system_database.external.autoscale_password": { "value": { "secret": $db_autoscale_password } },
-      ".properties.system_database.external.diego_username": { "value": $db_diego_username },
-      ".properties.system_database.external.diego_password": { "value": { "secret": $db_diego_password } },
-      ".properties.system_database.external.notifications_username": { "value": $db_notifications_username },
-      ".properties.system_database.external.notifications_password": { "value": { "secret": $db_notifications_password } },
-      ".properties.system_database.external.routing_username": { "value": $db_routing_username },
-      ".properties.system_database.external.routing_password": { "value": { "secret": $db_routing_password } },
-      ".properties.system_database.external.ccdb_username": { "value": $db_ccdb_username },
-      ".properties.system_database.external.ccdb_password": { "value": { "secret": $db_ccdb_password } },
-      ".properties.system_database.external.account_username": { "value": $db_accountdb_username },
       ".properties.system_database.external.account_password": { "value": { "secret": $db_accountdb_password } },
-      ".properties.system_database.external.networkpolicyserver_username": { "value": $db_networkpolicyserverdb_username },
-      ".properties.system_database.external.networkpolicyserver_password": { "value": { "secret": $db_networkpolicyserverdb_password } },
-      ".properties.system_database.external.nfsvolume_username": { "value": $db_nfsvolumedb_username },
-      ".properties.system_database.external.nfsvolume_password": { "value": { "secret": $db_nfsvolumedb_password } },
-      ".properties.system_database.external.locket_username": { "value": $db_locket_username },
+      ".properties.system_database.external.account_username": { "value": $db_accountdb_username },
+      ".properties.system_database.external.app_usage_service_password": { "value": { "secret": $db_app_usage_service_password } },
+      ".properties.system_database.external.app_usage_service_username": { "value": $db_app_usage_service_username },
+      ".properties.system_database.external.autoscale_password": { "value": { "secret": $db_autoscale_password } },
+      ".properties.system_database.external.autoscale_username": { "value": $db_autoscale_username },
+      ".properties.system_database.external.ccdb_password": { "value": { "secret": $db_ccdb_password } },
+      ".properties.system_database.external.ccdb_username": { "value": $db_ccdb_username },
+      ".properties.system_database.external.credhub_username": { "value": $db_credhub_username },
+      ".properties.system_database.external.credhub_password": { "value": { "secret": $db_credhub_password } },
+      ".properties.system_database.external.diego_password": { "value": { "secret": $db_diego_password } },
+      ".properties.system_database.external.diego_username": { "value": $db_diego_username },
+      ".properties.system_database.external.host": { "value": $db_host },
       ".properties.system_database.external.locket_password": { "value": { "secret": $db_locket_password } },
-      ".properties.system_database.external.silk_username": { "value": $db_silk_username },
+      ".properties.system_database.external.locket_username": { "value": $db_locket_username },
+      ".properties.system_database.external.networkpolicyserver_password": { "value": { "secret": $db_networkpolicyserverdb_password } },
+      ".properties.system_database.external.networkpolicyserver_username": { "value": $db_networkpolicyserverdb_username },
+      ".properties.system_database.external.nfsvolume_password": { "value": { "secret": $db_nfsvolumedb_password } },
+      ".properties.system_database.external.nfsvolume_username": { "value": $db_nfsvolumedb_username },
+      ".properties.system_database.external.notifications_password": { "value": { "secret": $db_notifications_password } },
+      ".properties.system_database.external.notifications_username": { "value": $db_notifications_username },
+      ".properties.system_database.external.port": { "value": "3306" },
+      ".properties.system_database.external.routing_password": { "value": { "secret": $db_routing_password } },
+      ".properties.system_database.external.routing_username": { "value": $db_routing_username },
       ".properties.system_database.external.silk_password": { "value": { "secret": $db_silk_password } },
+      ".properties.system_database.external.silk_username": { "value": $db_silk_username },
+      ".properties.system_database.external.uaa_password": { "value": {"secret" : $db_uaa_password } },
+      ".properties.system_database.external.uaa_username": { "value": $db_uaa_username },
+      ".properties.tcp_routing": { "value": "disable" },
       ".properties.uaa_database": { "value": "external" },
       ".properties.uaa_database.external.host": { "value": $db_host },
       ".properties.uaa_database.external.port": { "value": "3306" },
-      ".properties.uaa_database.external.uaa_username": { "value": $db_uaa_username },
       ".properties.uaa_database.external.uaa_password": { "value": { "secret": $db_uaa_password } },
-      ".properties.push_apps_manager_company_name": { "value": "pcf-\($iaas)" },
-      ".cloud_controller.system_domain": { "value": $system_domain },
-      ".cloud_controller.apps_domain": { "value": $apps_domain },
-      ".cloud_controller.allow_app_ssh_access": { "value": true },
-      ".cloud_controller.security_event_logging_enabled": { "value": true },
+      ".properties.uaa_database.external.uaa_username": { "value": $db_uaa_username },
       ".router.disable_insecure_cookies": { "value": false },
-      ".mysql_monitor.recipient_email": { "value" : $mysql_monitor_recipient_email }
+      ".router.frontend_idle_timeout": { "value": $frontend_idle_timeout }
     }
 
     +
@@ -340,7 +334,7 @@ cf_properties=$(
         ".properties.system_blobstore.external.resources_bucket": { "value": "\($terraform_prefix)-resources" },
         ".properties.system_blobstore.external.access_key": { "value": $aws_access_key },
         ".properties.system_blobstore.external.secret_key": { "value": { "secret": $aws_secret_key } },
-        ".properties.system_blobstore.external.signature_version.value": { "value": "4" },
+        ".properties.system_blobstore.external.signature_version": { "value": "4" },
         ".properties.system_blobstore.external.region": { "value": $aws_region },
         ".properties.system_blobstore.external.endpoint": { "value": $s3_endpoint }
       }
@@ -356,36 +350,6 @@ cf_properties=$(
       }
     else
       .
-    end
-
-    +
-
-    # MySQL Backups
-
-    if $mysql_backups == "scp" then
-      {
-        ".properties.mysql_backups": {"value": $mysql_backups},
-        ".properties.mysql_backups.scp.server": {"value": $mysql_backups_scp_server},
-        ".properties.mysql_backups.scp.port": {"value": $mysql_backups_scp_port},
-        ".properties.mysql_backups.scp.user": {"value": $mysql_backups_scp_user},
-        ".properties.mysql_backups.scp.key": {"value": $mysql_backups_scp_key},
-        ".properties.mysql_backups.scp.destination": {"value": $mysql_backups_scp_destination},
-        ".properties.mysql_backups.scp.cron_schedule": {"value": $mysql_backups_scp_cron_schedule}
-      }
-    elif $mysql_backups == "s3" then
-      {
-        ".properties.mysql_backups": {"value": $mysql_backups},
-        ".properties.mysql_backups.s3.endpoint_url": {"value": $mysql_backups_s3_endpoint_url},
-        ".properties.mysql_backups.s3.bucket_name": {"value": $mysql_backups_s3_bucket_name},
-        ".properties.mysql_backups.s3.bucket_path": {"value": $mysql_backups_s3_bucket_path},
-        ".properties.mysql_backups.s3.access_key_id": {"value": $mysql_backups_s3_access_key_id},
-        ".properties.mysql_backups.s3.secret_access_key": {"value": { "secret": $mysql_backups_s3_secret_access_key}},
-        ".properties.mysql_backups.s3.cron_schedule": {"value": $mysql_backups_s3_cron_schedule}
-      }
-    else
-      {
-        ".properties.mysql_backups": {"value": "disable"}
-      }
     end
 
     +

@@ -129,13 +129,13 @@ cf_properties=$(
     --arg tcp_router_static_ips "$TCP_ROUTER_STATIC_IPS" \
     --arg company_name "$COMPANY_NAME" \
     --arg ssh_static_ips "$SSH_STATIC_IPS" \
-    --arg mysql_static_ips "$MYSQL_STATIC_IPS" \
     --arg haproxy_forward_tls "$HAPROXY_FORWARD_TLS" \
     --arg haproxy_backend_ca "$HAPROXY_BACKEND_CA" \
     --arg router_tls_ciphers "$ROUTER_TLS_CIPHERS" \
     --arg routing_tls_termination $ROUTING_TLS_TERMINATION \
     --arg routing_custom_ca_certificates "$ROUTING_CUSTOM_CA_CERTIFICATES" \
     --arg haproxy_tls_ciphers "$HAPROXY_TLS_CIPHERS" \
+    --arg frontend_idle_timeout "$FRONTEND_IDLE_TIMEOUT" \
     --arg disable_http_proxy "$DISABLE_HTTP_PROXY" \
     --arg smtp_from "$SMTP_FROM" \
     --arg smtp_address "$SMTP_ADDRESS" \
@@ -162,19 +162,6 @@ cf_properties=$(
     --arg ldap_last_name_attr "$LAST_NAME_ATTR" \
     --arg saml_cert_pem "$SAML_SSL_CERT" \
     --arg saml_key_pem "$SAML_SSL_PRIVATE_KEY" \
-    --arg mysql_backups "$MYSQL_BACKUPS" \
-    --arg mysql_backups_s3_endpoint_url "$MYSQL_BACKUPS_S3_ENDPOINT_URL" \
-    --arg mysql_backups_s3_bucket_name "$MYSQL_BACKUPS_S3_BUCKET_NAME" \
-    --arg mysql_backups_s3_bucket_path "$MYSQL_BACKUPS_S3_BUCKET_PATH" \
-    --arg mysql_backups_s3_access_key_id "$MYSQL_BACKUPS_S3_ACCESS_KEY_ID" \
-    --arg mysql_backups_s3_secret_access_key "$MYSQL_BACKUPS_S3_SECRET_ACCESS_KEY" \
-    --arg mysql_backups_s3_cron_schedule "$MYSQL_BACKUPS_S3_CRON_SCHEDULE" \
-    --arg mysql_backups_scp_server "$MYSQL_BACKUPS_SCP_SERVER" \
-    --arg mysql_backups_scp_port "$MYSQL_BACKUPS_SCP_PORT" \
-    --arg mysql_backups_scp_user "$MYSQL_BACKUPS_SCP_USER" \
-    --arg mysql_backups_scp_key "$MYSQL_BACKUPS_SCP_KEY" \
-    --arg mysql_backups_scp_destination "$MYSQL_BACKUPS_SCP_DESTINATION" \
-    --arg mysql_backups_scp_cron_schedule "$MYSQL_BACKUPS_SCP_CRON_SCHEDULE" \
     --argjson credhub_encryption_keys "$credhub_encryption_keys_json" \
     --argjson networking_poe_ssl_certs "$networking_poe_ssl_certs_json" \
     --arg container_networking_nw_cidr "$CONTAINER_NETWORKING_NW_CIDR" \
@@ -225,6 +212,9 @@ cf_properties=$(
       ".router.request_timeout_in_seconds": {
         "value": $router_request_timeout_seconds
       },
+      ".router.frontend_idle_timeout": {
+        "value": $frontend_idle_timeout
+      },
       ".mysql_monitor.recipient_email": {
         "value": $mysql_monitor_email
       },
@@ -233,9 +223,6 @@ cf_properties=$(
       },
       ".diego_brain.static_ips": {
         "value": $ssh_static_ips
-      },
-      ".mysql_proxy.static_ips": {
-        "value": $mysql_static_ips
       }
     }
 
@@ -473,61 +460,6 @@ cf_properties=$(
         }
       }
     }
-
-    +
-
-    # MySQL Backups
-    if $mysql_backups == "s3" then
-      {
-        ".properties.mysql_backups": {
-          "value": "s3"
-        },
-        ".properties.mysql_backups.s3.endpoint_url":  {
-          "value": $mysql_backups_s3_endpoint_url
-        },
-        ".properties.mysql_backups.s3.bucket_name":  {
-          "value": $mysql_backups_s3_bucket_name
-        },
-        ".properties.mysql_backups.s3.bucket_path":  {
-          "value": $mysql_backups_s3_bucket_path
-        },
-        ".properties.mysql_backups.s3.access_key_id":  {
-          "value": $mysql_backups_s3_access_key_id
-        },
-        ".properties.mysql_backups.s3.secret_access_key":  {
-          "value": $mysql_backups_s3_secret_access_key
-        },
-        ".properties.mysql_backups.s3.cron_schedule":  {
-          "value": $mysql_backups_s3_cron_schedule
-        }
-      }
-    elif $mysql_backups == "scp" then
-      {
-        ".properties.mysql_backups": {
-          "value": "scp"
-        },
-        ".properties.mysql_backups.scp.server": {
-          "value": $mysql_backups_scp_server
-        },
-        ".properties.mysql_backups.scp.port": {
-          "value": $mysql_backups_scp_port
-        },
-        ".properties.mysql_backups.scp.user": {
-          "value": $mysql_backups_scp_user
-        },
-        ".properties.mysql_backups.scp.key": {
-          "value": $mysql_backups_scp_key
-        },
-        ".properties.mysql_backups.scp.destination": {
-          "value": $mysql_backups_scp_destination
-        },
-        ".properties.mysql_backups.scp.cron_schedule" : {
-          "value": $mysql_backups_scp_cron_schedule
-        }
-      }
-    else
-      .
-    end
     '
 )
 
@@ -550,11 +482,10 @@ cf_network=$(
 )
 
 JOB_RESOURCE_CONFIG="{
-  \"backup-prepare\": { \"instances\": $BACKUP_PREPARE_INSTANCES },
+  \"backup_restore\": { \"instances\": $BACKUP_PREPARE_INSTANCES },
   \"clock_global\": { \"instances\": $CLOCK_GLOBAL_INSTANCES },
   \"cloud_controller\": { \"instances\": $CLOUD_CONTROLLER_INSTANCES },
   \"cloud_controller_worker\": { \"instances\": $CLOUD_CONTROLLER_WORKER_INSTANCES },
-  \"consul_server\": { \"instances\": $CONSUL_SERVER_INSTANCES },
   \"credhub\": { \"instances\": $CREDHUB_INSTANCES },
   \"diego_brain\": { \"instances\": $DIEGO_BRAIN_INSTANCES },
   \"diego_cell\": { \"instances\": $DIEGO_CELL_INSTANCES },

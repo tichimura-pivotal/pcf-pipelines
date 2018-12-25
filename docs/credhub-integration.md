@@ -2,9 +2,9 @@
 
 # Concourse Pipelines Integration with CredHub
 
-[Concourse](http://concourse.ci/creds.html) supports integration with [CredHub](https://github.com/pivotal-cf/credhub-release/tree/master/docs) for credentials management in its pipelines, which can reference encrypted secrets stored in a CredHub server and get them automatically interpolated during execution of tasks.
+[Concourse](http://concourse-ci.org/creds.html) supports integration with [CredHub](https://github.com/pivotal-cf/credhub-release/tree/master/docs) for credentials management in its pipelines, which can reference encrypted secrets stored in a CredHub server and get them automatically interpolated during execution of tasks.
 
-This article provides samples of deployment manifests and pipelines for the integration of a BOSH-deployed Concourse server with CredHub. See the [documentation page](http://concourse.ci/creds.html) for information about CredHub integration with a Concourse server deployed using some other method.
+This article provides samples of deployment manifests and pipelines for the integration of a BOSH-deployed Concourse server with CredHub. See the [documentation page](http://concourse-ci.org/creds.html) for information about CredHub integration with a Concourse server deployed using some other method.
 
 ## Table of Contents
 
@@ -70,7 +70,7 @@ This integration approach provides a CredHub server that is dedicated to the Con
   - [**Cloud Config**](https://bosh.io/docs/update-cloud-config.html) set to the Bosh Director to define network, disk and VM settings.
 
 
-1. Create and update your **Concourse deployment YML file** containing the CredHub jobs defined as part of the Concourse's `web` VM. See this [deployment file](samples/concourse-with-credhub.yml) as an example for a starting point, or use the [operations files](samples/colocated-credhub/ops) provided in this repo to transform an existing manifest.
+1. Create and update your **Concourse deployment YML file** containing the CredHub jobs defined as part of the Concourse's `web` VM. See this [deployment file](samples/concourse-with-credhub.yml) as an example for a starting point, or use the [operations files](samples/colocated-credhub-ops) provided in this repo to transform an existing manifest.
 
 2. Configure [concourse-with-credhub-params.yml](samples/concourse-with-credhub-params.yml) with the corresponding values for your deployment.
 
@@ -83,7 +83,7 @@ This integration approach provides a CredHub server that is dedicated to the Con
 
 4. Deploy Concourse and CredHub with the [Bosh CLI](https://bosh.io/docs/cli-v2.html):  
    Example:  
-   `bosh -e <bosh-alias> -d concourse deploy concourse-with-credhub.yml -l concourse-with-credhub-params.yml --vars-store=./concourse-gen-bars.yml`
+   `bosh -e <bosh-alias> -d concourse deploy concourse-with-credhub.yml -l concourse-with-credhub-params.yml --vars-store=./concourse-gen-vars.yml`
 
    The sample deployment manifest uses the feature of automatic generation of variables, certificates and keys from Bosh (see `variables` section of the file). Bosh will will add the values of the newly crated variables to a local file (defined by `--vars-store`) for future reference purposes.
 
@@ -103,7 +103,7 @@ Once the deployment is finished, all servers will be available from the `concour
 
   For the server deployed in the example above, you can use Bosh 2's interpolate command to retrieve generated certificates and variables:  
 
-  `credhub api https://https://<concourse_host>:8844:8844 --ca-cert <(bosh int ./concourse-gen-vars.yml --path /concourse-tls/ca)`  
+  `credhub api https://<concourse_host>:8844:8844 --ca-cert <(bosh int ./concourse-gen-vars.yml --path /concourse-tls/ca)`  
 
 - Set CREDHUB_PASSWORD environment variable  
 
@@ -181,7 +181,7 @@ Refer to [CredHub](https://github.com/pivotal-cf/credhub-release/tree/master/doc
 ---
 ## <a name="references"></a> References
 
-- [Concourse Credentials Management](http://concourse.ci/creds.html)
+- [Concourse Credentials Management](http://concourse-ci.org/creds.html)
 
 - [CredHub Bosh Release](https://github.com/pivotal-cf/credhub-release)
 - [CredHub CLI repository](https://github.com/cloudfoundry-incubator/credhub-cli)
