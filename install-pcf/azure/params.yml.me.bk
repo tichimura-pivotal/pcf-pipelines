@@ -28,7 +28,7 @@ azure_multi_resgroup_infra_vnet_name:
 azure_multi_resgroup_network:
 
 # Required if using c0-azure-multi-res-group - The resource group name for your Azure environment
-azure_multi_resgroup_pcf: 
+azure_multi_resgroup_pcf: tichimura-DemoGrp
 
 # Private IP for the Operations Manager VM
 azure_opsman_priv_ip: 192.168.0.4
